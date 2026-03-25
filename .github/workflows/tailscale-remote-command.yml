@@ -1,0 +1,37 @@
+name: Run Remote Command via Tailscale
+
+on:
+  workflow_dispatch:
+    inputs:
+      command:
+        description: 'Command to run'
+        required: true
+        default: 'echo "Hello World"'
+
+jobs:
+  remote-command:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+
+      - name: Setup SSH
+        uses: ./.github/actions/setup-ssh
+        with:
+            host: ${{ vars.SSH_HOST }}
+            private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+            username: ${{ vars.SSH_USER }}
+        # a connection named 'server' is now available for use in ssh and scp commands
+
+
+      - name: Connect to Tailscale
+        uses: tailscale/github-action@v4
+        with:
+          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+          oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
+          tags: tag:ci
+
+      - name: Run Remote Command
+        run: |
+          ssh server "${{ inputs.command }}"
