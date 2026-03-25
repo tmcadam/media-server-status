@@ -16,6 +16,13 @@ jobs:
         uses: actions/checkout@v4
 
 
+      - name: Connect to Tailscale
+        uses: tailscale/github-action@v4
+        with:
+          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+          oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
+          tags: tag:ci
+
       - name: Setup SSH
         uses: ./.github/actions/setup-ssh
         with:
@@ -23,14 +30,6 @@ jobs:
             private-key: ${{ secrets.SSH_PRIVATE_KEY }}
             username: ${{ vars.SSH_USER }}
         # a connection named 'server' is now available for use in ssh and scp commands
-
-
-      - name: Connect to Tailscale
-        uses: tailscale/github-action@v4
-        with:
-          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
-          oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
-          tags: tag:ci
 
       - name: Run Remote Command
         run: |
